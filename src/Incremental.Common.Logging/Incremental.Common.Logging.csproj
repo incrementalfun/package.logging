@@ -9,6 +9,8 @@
         <PackageProjectUrl>https://github.com/incrementalfun/package.logging</PackageProjectUrl>
         <RepositoryUrl>https://github.com/incrementalfun/package.logging</RepositoryUrl>
         <Copyright>Copyright © Lucas Maximiliano Marino 2021</Copyright>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
