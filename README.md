@@ -1,11 +1,12 @@
-# package.logging
+# Incremental.Common.Logging
+
 Common logging utilities.
 
 ## License
 
-The MIT License (MIT)
+MIT License
 
-Copyright (c) 2021 <a href="https://lucasmarino.me">Lucas Maximiliano Marino</a>
+Copyright (c) 2021 [Lucas Maximiliano Marino](https://lucasmarino.me)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
