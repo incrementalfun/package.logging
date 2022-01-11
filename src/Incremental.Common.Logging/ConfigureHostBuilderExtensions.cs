@@ -2,6 +2,7 @@
 using Amazon;
 using Amazon.CloudWatchLogs;
 using Amazon.Runtime;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -19,17 +20,17 @@ namespace Incremental.Common.Logging
     /// <summary>
     ///     Common Logger extensions.
     /// </summary>
-    public static class WebHostBuilderExtensions
+    public static class ConfigureHostBuilderExtensions
     {
         /// <summary>
         ///     Configures common logging.
         /// </summary>
-        /// <param name="webHostBuilder">
-        ///     <see cref="IWebHostBuilder" />
+        /// <param name="hostBuilder">
+        ///     <see cref="ConfigureHostBuilder" />
         /// </param>
-        public static void AddCommonLogging(this IWebHostBuilder webHostBuilder)
+        public static void UseCommonLogging(this ConfigureHostBuilder hostBuilder)
         {
-            webHostBuilder.UseSerilog((context, configuration) =>
+            hostBuilder.UseSerilog((context, configuration) =>
             {
                 configuration
                     .Enrich.FromLogContext()
