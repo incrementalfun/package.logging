@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Amazon;
 using Amazon.CloudWatchLogs;
 using Amazon.Runtime;
@@ -38,7 +39,7 @@ namespace Incremental.Common.Logging
                         .WithDefaultDestructurers()
                         .WithDestructurers(new[] {new DbUpdateExceptionDestructurer()}));
 
-                if (context.HostingEnvironment.IsDevelopment())
+                if (context.HostingEnvironment.IsDevelopment() || LocalLoggingIsEnabled(context))
                     configuration
                         .WriteTo.Console();
 
@@ -53,6 +54,11 @@ namespace Incremental.Common.Logging
                         MinimumLogEventLevel = context.HostingEnvironment.IsDevelopment() ? LogEventLevel.Debug : LogEventLevel.Information
                     }, new AmazonCloudWatchLogsClient(context.Configuration.GetAWSCredentials(), context.Configuration.GetAWSRegion()));
             });
+        }
+
+        private static bool LocalLoggingIsEnabled(HostBuilderContext context)
+        {
+            return context.Configuration.GetValue<bool?>("LOCAL_LOGGING_ENABLED") is true;
         }
 
         private static BasicAWSCredentials GetAWSCredentials(this IConfiguration configuration)
