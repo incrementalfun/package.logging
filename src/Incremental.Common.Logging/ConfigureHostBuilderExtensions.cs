@@ -37,22 +37,28 @@ namespace Incremental.Common.Logging
                     .Enrich.FromLogContext()
                     .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
                         .WithDefaultDestructurers()
-                        .WithDestructurers(new[] {new DbUpdateExceptionDestructurer()}));
+                        .WithDestructurers(new[] { new DbUpdateExceptionDestructurer() }));
 
-                if (context.HostingEnvironment.IsDevelopment() || LocalLoggingIsEnabled(context))
-                    configuration
-                        .WriteTo.Console();
+                if (context.HostingEnvironment.IsDevelopment() || LocalLoggingIsEnabled(context) ||
+                    !context.Configuration.AWSCredentialsExist())
+                {
+                    configuration.WriteTo.Console();
+                }
 
-                configuration
-                    .WriteTo.AmazonCloudWatch(new CloudWatchSinkOptions
+                if (context.Configuration.AWSCredentialsExist())
+                {
+                    configuration.WriteTo.AmazonCloudWatch(new CloudWatchSinkOptions
                     {
                         LogGroupName = $"{context.Configuration["LOG_GROUP_NAME"]}#{context.HostingEnvironment.EnvironmentName}",
                         LogStreamNameProvider =
                             new ConfigurableLogStreamNameProvider($"{Assembly.GetEntryAssembly()?.GetName().Name}", false, false),
                         CreateLogGroup = true,
                         TextFormatter = new CompactJsonFormatter(),
-                        MinimumLogEventLevel = context.HostingEnvironment.IsDevelopment() ? LogEventLevel.Debug : LogEventLevel.Information
+                        MinimumLogEventLevel = context.HostingEnvironment.IsDevelopment()
+                            ? LogEventLevel.Debug
+                            : LogEventLevel.Information
                     }, new AmazonCloudWatchLogsClient(context.Configuration.GetAWSCredentials(), context.Configuration.GetAWSRegion()));
+                }
             });
         }
 
@@ -61,9 +67,15 @@ namespace Incremental.Common.Logging
             return context.Configuration.GetValue<bool?>("LOCAL_LOGGING_ENABLED") is true;
         }
 
+        private static bool AWSCredentialsExist(this IConfiguration configuration)
+        {
+            return !string.IsNullOrWhiteSpace(configuration["AWS_ACCESS_KEY"]) &&
+                   !string.IsNullOrWhiteSpace(configuration["AWS_SECRET_KEY"]);
+        }
+
         private static BasicAWSCredentials GetAWSCredentials(this IConfiguration configuration)
         {
-            return new(configuration["AWS_ACCESS_KEY"], configuration["AWS_SECRET_KEY"]);
+            return new BasicAWSCredentials(configuration["AWS_ACCESS_KEY"], configuration["AWS_SECRET_KEY"]);
         }
 
         private static RegionEndpoint GetAWSRegion(this IConfiguration configuration)
